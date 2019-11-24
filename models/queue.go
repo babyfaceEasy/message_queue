@@ -95,9 +95,7 @@ func (q Queue) GetMessage() (Message, error) {
 		return Message{}, err
 	}
 
-	var messages []Message
-	db.Model(&q).Related(&messages)
-	mostRecent := len(messages) - 1
-
-	return messages[mostRecent], nil
+	var message Message
+	db.Where("queue_id = ?", q.ID).Order("id desc").Limit(1).Find(&message)
+	return message, nil
 }
