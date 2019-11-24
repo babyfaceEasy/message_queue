@@ -1,0 +1,15 @@
+
+-- +migrate Up
+CREATE TABLE IF NOT EXISTS `messages` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `queue_id` INTEGER NOT NULL,
+    `message` TEXT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY(id),
+    CONSTRAINT FK_MessageQeue FOREIGN KEY (queue_id) REFERENCES queues(id)
+);
+
+-- +migrate Down
+ALTER TABLE messages DROP CONSTRAINT FK_MessageQeue;
+DROP TABLE messages;

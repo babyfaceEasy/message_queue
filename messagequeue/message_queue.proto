@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.grpc.message_queue.messagequeue";
+option java_outer_classname = "MessageQueueProto";
+
+package messagequeue;
+
+service MessageQueue{
+    // creates a new message inside the given queue.
+    // Returns a status message signifying if the operation was successful.
+    rpc createMessage(QueueMessage) returns (Response);
+
+    // gets the next message available in the given queue name.
+    // Returns QueueData or nil if there exist no more messages in the queue.
+    rpc getMessage (QueueName) returns (QueueMessage);
+}
+
+// QueueName, is the name of the queue.
+message QueueName {
+    string name = 1;
+}
+
+// QueueMessage is the message you want to pass to the other server / app.
+message QueueMessage {
+    QueueName queue = 1; 
+    string message_json = 2;
+}
+
+// this is to hold the different status of a Queue message
+message Response{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = 1;
+    }
+    Status status = 1;
+}
