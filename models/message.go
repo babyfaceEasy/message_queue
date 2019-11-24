@@ -9,11 +9,13 @@ import (
 
 // Message the model to hold message info
 type Message struct {
-	ID        int
-	QueueID   int
-	Message   string
-	CreatedAt *time.Time
-	UpdatedAt *time.Time
+	ID          int
+	QueueID     int
+	Message     string
+	Status      string
+	AvailableAt *time.Time
+	CreatedAt   *time.Time
+	UpdatedAt   *time.Time
 }
 
 // CreateMessage this adds a new message to the given queue
