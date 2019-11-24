@@ -3,12 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"net"
+	"os"
 
-	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	pb "github.com/me/message_queue/messagequeue"
 	"github.com/me/message_queue/models"
 	"github.com/subosito/gotenv"
+	"google.golang.org/grpc"
 )
 
 type messageQueueServer struct {
@@ -82,33 +85,16 @@ func init() {
 }
 
 func main() {
-	/*
-		lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%s", os.Getenv("GRPC_PORT")))
-		if err != nil {
-			log.Fatalf("failed to listen: %v", err)
-		}
-		fmt.Printf("Listening on %s\n", os.Getenv("GRPC_PORT"))
-		var opts []grpc.ServerOption
 
-		grpcServer := grpc.NewServer(opts...)
-		pb.RegisterMessageQueueServer(grpcServer, newServer())
-		grpcServer.Serve(lis)
-	*/
-
-	db, err := gorm.Open("mysql", "root:root@/message_queue?charset=utf8&parseTime=True&loc=Local")
-	defer db.Close()
+	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%s", os.Getenv("GRPC_PORT")))
 	if err != nil {
-		panic("Failed to connect to database")
+		log.Fatalf("failed to listen: %v", err)
 	}
-	queue := new(models.Queue)
-	db.First(&queue, 2)
-	message, err := queue.GetMessage()
-	if err != nil {
-		fmt.Println(err)
-	}
-	//messages := []models.Message
+	fmt.Printf("Listening on %s\n", os.Getenv("GRPC_PORT"))
+	var opts []grpc.ServerOption
 
-	//fmt.Printf("%+v\n", queue)
-	fmt.Printf("%+v\n", message)
+	grpcServer := grpc.NewServer(opts...)
+	pb.RegisterMessageQueueServer(grpcServer, newServer())
+	grpcServer.Serve(lis)
 
 }

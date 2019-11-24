@@ -10,6 +10,13 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
+const (
+	created   = "created"
+	inTransit = "in_transit"
+	reQueued  = "requeued"
+	processed = "processed"
+)
+
 // Queue the struct to hold queue information
 type Queue struct {
 	ID        int
@@ -96,6 +103,10 @@ func (q Queue) GetMessage() (Message, error) {
 	}
 
 	var message Message
-	db.Where("queue_id = ?", q.ID).Order("id desc").Limit(1).Find(&message)
+	// fmt.Println(time.Now())
+	db.Where("queue_id = ? AND (status = ? OR status = ?) AND available_at <= ?", q.ID, created, reQueued, time.Now()).
+		Order("id asc").
+		Limit(1).
+		Find(&message)
 	return message, nil
 }
