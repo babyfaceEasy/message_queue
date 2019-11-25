@@ -14,6 +14,9 @@ service MessageQueue{
     // gets the next message available in the given queue name.
     // Returns QueueData or nil if there exist no more messages in the queue.
     rpc getMessage (QueueName) returns (QueueMessage);
+
+    // updates the message status accordinly
+    rpc updateMessageStatus(MessageID) returns (Response);
 }
 
 // QueueName, is the name of the queue.
@@ -34,4 +37,9 @@ message Response{
         ERROR = 1;
     }
     Status status = 1;
+}
+
+// this is the ID of the message for the given queue
+message MessageID{
+    int64 id = 1;
 }
