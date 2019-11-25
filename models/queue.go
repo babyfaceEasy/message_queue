@@ -10,11 +10,14 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
+// MessageStatus The current status of a message
+type MessageStatus string
+
 const (
-	created   = "created"
-	inTransit = "in_transit"
-	reQueued  = "requeued"
-	processed = "processed"
+	created   MessageStatus = "created"
+	inTransit MessageStatus = "in_transit"
+	reQueued  MessageStatus = "requeued"
+	processed MessageStatus = "processed"
 )
 
 // Queue the struct to hold queue information

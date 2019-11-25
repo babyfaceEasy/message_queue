@@ -24,3 +24,6 @@ client/
 
 # Mac Os
 .DS_Store
+
+# todo
+todo.txt

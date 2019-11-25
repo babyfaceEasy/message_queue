@@ -38,7 +38,7 @@ func (m *messageQueueServer) CreateMessage(ctx context.Context, queueReq *pb.Que
 	_, err = message.CreateMessage(queueReq.GetQueue().GetName())
 
 	if err != nil {
-		return &pb.Response{Status: pb.Response_ERROR}, nil
+		return &pb.Response{Status: pb.Response_ERROR}, err
 	}
 
 	return &pb.Response{Status: pb.Response_SUCCESS}, nil

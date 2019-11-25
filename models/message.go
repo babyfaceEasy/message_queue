@@ -12,7 +12,7 @@ type Message struct {
 	ID          int
 	QueueID     int
 	Message     string
-	Status      string
+	Status      MessageStatus `sql:"not null;type:ENUM('created', 'in_transit', 'requeued', 'processed', 'queued')"`
 	AvailableAt *time.Time
 	CreatedAt   *time.Time
 	UpdatedAt   *time.Time
@@ -41,9 +41,10 @@ func (m *Message) CreateMessage(queueName string) (Message, error) {
 
 	// save details
 	m.QueueID = queueDets.ID
-	possible := db.NewRecord(&m)
-	if possible {
-		db.Create(&m)
+	m.Status = created
+	err = db.Create(&m).Error
+	if err != nil {
+		return Message{}, err
 	}
 
 	return *m, nil
