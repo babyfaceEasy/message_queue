@@ -59,7 +59,9 @@ func (m Message) GetQueue() (Queue, error) {
 	}
 
 	queue := new(Queue)
-	db.Model(&m).Related(&queue)
+	if err := db.Model(&m).Related(&queue).Error; err != nil {
+		return Queue{}, err
+	}
 
 	return *queue, nil
 }

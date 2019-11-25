@@ -47,13 +47,15 @@ func (q Queue) CreateQueue() (Queue, error) {
 	}
 	// check if queue already exist
 	exists := Queue{}
-	db.Where("name = ?", q.Name).First(&exists)
+	err = db.Where("name = ?", q.Name).First(&exists).Error
+	if err != nil {
+		return Queue{}, err
+	}
 	if (Queue{}) != exists {
 		return Queue{}, errors.New("Queue already exist")
 	}
-	possible := db.NewRecord(&q)
-	if possible {
-		db.Create(&q)
+	if err := db.Create(&q).Error; err != nil {
+		return Queue{}, err
 	}
 	return q, nil
 }
@@ -66,7 +68,9 @@ func (q *Queue) GetQueueByID(id int) error {
 		return err
 	}
 
-	db.First(&q, id)
+	if err := db.First(&q, id).Error; err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -78,7 +82,9 @@ func (q *Queue) GetQueueByName(queueName string) error {
 	if err != nil {
 		return err
 	}
-	db.Where("name = ? ", queueName).First(&q)
+	if err := db.Where("name = ? ", queueName).First(&q).Error; err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -92,7 +98,9 @@ func (q Queue) GetMessages() ([]Message, error) {
 	}
 
 	var messages []Message
-	db.Model(&q).Related(&messages)
+	if err := db.Model(&q).Related(&messages).Error; err != nil {
+		return []Message{}, err
+	}
 
 	return messages, nil
 }
@@ -107,9 +115,12 @@ func (q Queue) GetMessage() (Message, error) {
 
 	var message Message
 	// fmt.Println(time.Now())
-	db.Where("queue_id = ? AND (status = ? OR status = ?) AND available_at <= ?", q.ID, created, reQueued, time.Now()).
+	err = db.Where("queue_id = ? AND (status = ? OR status = ?) AND available_at <= ?", q.ID, created, reQueued, time.Now()).
 		Order("id asc").
 		Limit(1).
-		Find(&message)
+		Find(&message).Error
+	if err != nil {
+		return Message{}, err
+	}
 	return message, nil
 }
