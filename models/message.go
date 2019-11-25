@@ -65,3 +65,39 @@ func (m Message) GetQueue() (Queue, error) {
 
 	return *queue, nil
 }
+
+// GetMessageByID returns a given message if the message exist else returns empty object
+func (m *Message) GetMessageByID(id int64) error {
+	db, err := gorm.Open("mysql", "root:root@/message_queue?charset=utf8&parseTime=True&loc=Local")
+	defer db.Close()
+	if err != nil {
+		return err
+	}
+
+	if err := db.First(&m, id).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UpdateStatus moves the status of the message model in the right direction
+func (m *Message) UpdateStatus() error {
+	var newStatus MessageStatus = m.Status
+	if m.Status == inTransit {
+		newStatus = queued
+	} else if m.Status == queued {
+		newStatus = processed
+	}
+	db, err := gorm.Open("mysql", "root:root@/message_queue?charset=utf8&parseTime=True&loc=Local")
+	defer db.Close()
+	if err != nil {
+		return err
+	}
+
+	if err := db.Model(&m).Update("status", newStatus).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

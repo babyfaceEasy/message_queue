@@ -24,10 +24,7 @@ type tempStruct struct {
 }
 
 func (m *messageQueueServer) CreateMessage(ctx context.Context, queueReq *pb.QueueMessage) (*pb.Response, error) {
-
-	// implement the functionality to create messages
-	// sanitize and validate data
-	// call Queue and Message models
+	// TODO: sanitize and validate data
 	queueDetails := new(models.Queue)
 	err := queueDetails.GetQueueByName(queueReq.Queue.GetName())
 	if err != nil {
@@ -45,8 +42,6 @@ func (m *messageQueueServer) CreateMessage(ctx context.Context, queueReq *pb.Que
 }
 
 func (m *messageQueueServer) GetMessage(ctx context.Context, queueReq *pb.QueueName) (*pb.QueueMessage, error) {
-	// return the oldest message in the queue
-	// get the queue then return the message
 	queueDetails := models.Queue{}
 	err := queueDetails.GetQueueByName(queueReq.GetName())
 
@@ -70,6 +65,22 @@ func (m *messageQueueServer) GetMessage(ctx context.Context, queueReq *pb.QueueN
 		MessageJson: message.Message,
 	}, nil
 
+}
+
+// UpdateMessageStatus sets the message status based on the provided logic
+func (m *messageQueueServer) UpdateMessageStatus(ctx context.Context, messageID *pb.MessageID) (*pb.Response, error) {
+	message := new(models.Message)
+	err := message.GetMessageByID(messageID.GetId())
+	if err != nil {
+		return &pb.Response{Status: pb.Response_ERROR}, err
+	}
+
+	err = message.UpdateStatus()
+	if err != nil {
+		return &pb.Response{Status: pb.Response_ERROR}, err
+	}
+
+	return &pb.Response{Status: pb.Response_SUCCESS}, nil
 }
 
 func newServer() *messageQueueServer {

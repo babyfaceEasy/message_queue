@@ -16,6 +16,7 @@ type MessageStatus string
 const (
 	created   MessageStatus = "created"
 	inTransit MessageStatus = "in_transit"
+	queued    MessageStatus = "queued"
 	reQueued  MessageStatus = "requeued"
 	processed MessageStatus = "processed"
 )
@@ -120,6 +121,11 @@ func (q Queue) GetMessage() (Message, error) {
 		Limit(1).
 		Find(&message).Error
 	if err != nil {
+		return Message{}, err
+	}
+
+	// change the message status
+	if err := db.Model(&message).Update("status", inTransit).Error; err != nil {
 		return Message{}, err
 	}
 	return message, nil
